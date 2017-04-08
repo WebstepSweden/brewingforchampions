@@ -7,6 +7,7 @@ public class ContainerController : MonoBehaviour {
 	private DisruptiveApi.ApiClient api = new DisruptiveApi.ApiClient();
 
 	public TextMesh temperatureLabel;
+    public PathFinder pathFinder;
 
 	// Gamla: "206847491"
 
