@@ -122,10 +122,10 @@ public class ContainerController : MonoBehaviour {
     {
         if (inputTemperature > 22)
         {
-            return inputTemperature - 4;
+            return inputTemperature - 4 < 22? 22 : inputTemperature - 4;
         } else
         {
-            return inputTemperature + 4;
+            return inputTemperature + 4 > 22? 22 : inputTemperature + 4;
         }
     }
 
