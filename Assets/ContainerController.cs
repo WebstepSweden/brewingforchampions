@@ -6,7 +6,7 @@ public class ContainerController : MonoBehaviour {
 
 	private DisruptiveApi.ApiClient api = new DisruptiveApi.ApiClient();
 
-	public GameObject temperatureLabel;
+	public TextMesh temperatureLabel;
 
 	// Gamla: "206847491"
 
@@ -83,6 +83,7 @@ public class ContainerController : MonoBehaviour {
     void ResponseHandler(float temperature)
     {
         var target = GetTarget(temperature);
+		temperatureLabel.text = (temperature + "c");
         StartCoroutine(MovementCoroutine(target));
     }
 
