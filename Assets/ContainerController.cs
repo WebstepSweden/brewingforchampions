@@ -21,20 +21,50 @@ public class ContainerController : MonoBehaviour {
 	public float maxX = 4.5f;
 	public float maxZ = 9.5f;
 
+    private RoomSensor roomSensor1 = new RoomSensor()
+    {
+        id = "b3ke6ba1frig00d8q7t0",
+        temperature = 30f,
+        pos = new Vector3(-4.5f, 1, -9.5f)
+    };
 
-	// 16c -> -9.5f
+    private RoomSensor roomSensor2 = new RoomSensor()
+    {
+        id = "b3ke66q1frig00d8q7sg",
+        temperature = 5f,
+        pos = new Vector3(4.5f, 1, -9.5f)
+    };
 
-	// ((temp-16)/24*18-9.5f)
+    private RoomSensor roomSensor3 = new RoomSensor()
+    {
+        id = "b3ke50l3dl0000eaekh0",
+        temperature = 18f,
+        pos = new Vector3(4.5f, 1, 9.5f)
+    };
 
-	// 40c -> 9.5f
+    private RoomSensor roomSensor4 = new RoomSensor()
+    {
+        id = "b3ke4dd3dl0000eaekgg",
+        temperature = 27f,
+        pos = new Vector3(-4.5f, 1, 9.5f)
+    };
 
-	// Use this for initialization
-	void Start ()
-	{
-		StartCoroutine(poll());
-	}
+    // 16c -> -9.5f
 
-	IEnumerator MovementCoroutine (Vector3 target)
+    // ((temp-16)/24*18-9.5f)
+
+    // 40c -> 9.5f
+
+    void Start()
+    {
+        StartCoroutine(pollBrewSensor());
+        StartCoroutine(pollRoomSensor(roomSensor1));
+        StartCoroutine(pollRoomSensor(roomSensor2));
+        StartCoroutine(pollRoomSensor(roomSensor3));
+        StartCoroutine(pollRoomSensor(roomSensor4));
+    }
+
+    IEnumerator MovementCoroutine (Vector3 target)
 	{
 		while(Vector3.Distance(transform.position, target) > 0.05f)
 		{
@@ -50,32 +80,80 @@ public class ContainerController : MonoBehaviour {
 		print("MovementCoroutine is now finished.");
 	}
 
-	void ResponseHandler(float temperature)
-	{
-		print(temperature);
-		temperatureLabel.GetComponent<TextMesh> ().text = (temperature.ToString() + "c");
-		var target = new Vector3 (transform.position.x, transform.position.y, GetPositionFromTemperature(temperature));
+    void ResponseHandler(float temperature)
+    {
+        var target = GetTarget(temperature);
+        StartCoroutine(MovementCoroutine(target));
+    }
 
-		StartCoroutine (MovementCoroutine (target));
-	}
+    private IEnumerator pollBrewSensor()
+    {
+        while (true)
+        {
+            StartCoroutine(api.GetSensors(sensorId, ResponseHandler));
+            yield return new WaitForSeconds(5f);
+        }
+    }
 
-	private IEnumerator poll()
-	{
-		while (true)
-		{
-			StartCoroutine(api.GetSensors(sensorId, ResponseHandler));
-			yield return new WaitForSeconds(5f);
-		}
-	}
 
-	private float GetPositionFromTemperature (float temperature)
-	{
-		var position = ((temperature-16)/24*18-maxZ);
-		return position;
-	}
+    private IEnumerator pollRoomSensor(RoomSensor sensor)
+    {
+        while (true)
+        {
+            StartCoroutine(api.GetSensors(sensor.id, (temp) =>
+            {
+                sensor.temperature = temp;
+            }));
+            yield return new WaitForSeconds(3f);
+        }
+    }
 
-	// Update is called once per frame
-	void Update () {
+    private Vector3 GetTarget(float inputTemperature)
+    {
+        var targetTemperature = CreateTargetRoomTemperature(inputTemperature);
+        Vector3 one = GetPositionFromTemperature(roomSensor1, roomSensor3, targetTemperature);
+        Vector3 two = GetPositionFromTemperature(roomSensor2, roomSensor4, targetTemperature);
+        var distance = Vector3.Distance(one, two);
+        Vector3 midPoint = Vector3.MoveTowards(one, two, distance / 2);
+        return midPoint;
+    }
 
-	}
+    private float CreateTargetRoomTemperature(float inputTemperature)
+    {
+        if (inputTemperature > 22)
+        {
+            return inputTemperature - 4;
+        } else
+        {
+            return inputTemperature + 4;
+        }
+    }
+
+    private Vector3 GetPositionFromTemperature(RoomSensor s1, RoomSensor s2, float temperature)
+    {
+        var sensor1Pos = s1.pos;
+        var sensor2Pos = s2.pos;
+        var sensor1temp = s1.temperature;
+        var sensor2temp = s2.temperature;
+
+        var sensorDistance = Vector3.Distance(sensor1Pos, sensor2Pos);
+        var distanceFromSensor1 = sensorDistance * (temperature - sensor1temp) / (sensor2temp - sensor1temp);
+
+        var target = Vector3.MoveTowards(sensor1Pos, sensor2Pos, distanceFromSensor1);
+
+        return target;
+
+    }
+
+    private Vector3 createmidPoint(Vector3 one, Vector3 two)
+    {
+        return Vector3.MoveTowards(one, two, Vector3.Distance(one, two));
+    }
+
+    public class RoomSensor
+    {
+        public string id;
+        public float temperature;
+        public Vector3 pos;
+    }
 }
