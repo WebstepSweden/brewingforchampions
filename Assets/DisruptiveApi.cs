@@ -9,16 +9,8 @@ public class DisruptiveApi : MonoBehaviour {
 
     public class ApiClient
     {
-        public static readonly string HOST_STAGE = "claimonycards-stage.eu-west-1.elasticbeanstalk.com";
 
-        public string Host { get; private set; }
-
-        public ApiClient()
-        {
-            this.Host = "";
-        }
-
-        public IEnumerator GetSensors(string id, System.Action<double> resultCallback)
+        public IEnumerator GetSensors(string id, System.Action<float> resultCallback)
         {
             using (var webClient = new UnityWebRequest(string.Format("https://api.disruptive-technologies.com/v1/things/" + id))) {
                 webClient.downloadHandler = new DownloadHandlerBuffer();
@@ -33,7 +25,7 @@ public class DisruptiveApi : MonoBehaviour {
                 var subr = jsonText.Substring(jsonText.IndexOf("temperature") + "temperature:".Length + 1);
                 subr = subr.Substring(0, subr.IndexOf(","));
                 
-                resultCallback(double.Parse(subr));
+                resultCallback(float.Parse(subr));
             }
         }
 /**

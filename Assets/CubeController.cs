@@ -13,7 +13,7 @@ public class CubeController : MonoBehaviour {
     }
 	
 
-    void ResponseHandler(double temperature)
+    void ResponseHandler(float temperature)
     {
         print(temperature);
     }
