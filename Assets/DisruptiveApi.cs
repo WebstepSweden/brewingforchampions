@@ -22,6 +22,7 @@ public class DisruptiveApi : MonoBehaviour {
                 
                 if (webClient.responseCode != 200) print("ERROR");
                 var jsonText = webClient.downloadHandler.text;
+				print (jsonText);
                 var subr = jsonText.Substring(jsonText.IndexOf("temperature") + "temperature:".Length + 1);
                 subr = subr.Substring(0, subr.IndexOf(","));
                 
