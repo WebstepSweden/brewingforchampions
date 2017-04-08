@@ -6,6 +6,15 @@ public class ContainerController : MonoBehaviour {
 
 	private DisruptiveApi.ApiClient api = new DisruptiveApi.ApiClient();
 
+	public GameObject temperatureLabel;
+
+	// Gamla: "206847491"
+
+	// BrewR: "206860292"
+	// BrewL: "206889735"
+
+	public string sensorId = "206847491";
+
 	public float smoothing = 1f;
 	public Vector3 target;
 
@@ -44,6 +53,7 @@ public class ContainerController : MonoBehaviour {
 	void ResponseHandler(float temperature)
 	{
 		print(temperature);
+		temperatureLabel.GetComponent<TextMesh> ().text = (temperature.ToString() + "c");
 		var target = new Vector3 (transform.position.x, transform.position.y, GetPositionFromTemperature(temperature));
 
 		StartCoroutine (MovementCoroutine (target));
@@ -53,7 +63,7 @@ public class ContainerController : MonoBehaviour {
 	{
 		while (true)
 		{
-			StartCoroutine(api.GetSensors("206847491", ResponseHandler));
+			StartCoroutine(api.GetSensors(sensorId, ResponseHandler));
 			yield return new WaitForSeconds(5f);
 		}
 	}
