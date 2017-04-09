@@ -16,6 +16,11 @@ public class ContainerController : MonoBehaviour {
 	public TextMesh roomTempNearLeft;
 	public TextMesh roomTempNearRight;
 
+	public Light roomLightFarLeft;
+	public Light roomLightFarRight;
+	public Light roomLightNearLeft;
+	public Light roomLightNearRight;
+
     public float targetTemperature = 22;
 	public float maxTemperature = 40;
 	public float minTemperature = 0;
@@ -83,9 +88,13 @@ public class ContainerController : MonoBehaviour {
 	void SetupRoomSensorLabels()
 	{
 		roomSensor1.tempLabel = roomTempNearRight;
+		roomSensor1.tempLight = roomLightNearRight;
 		roomSensor2.tempLabel = roomTempFarRight;
+		roomSensor2.tempLight = roomLightFarRight;
 		roomSensor3.tempLabel = roomTempFarLeft;
+		roomSensor3.tempLight = roomLightFarLeft;
 		roomSensor4.tempLabel = roomTempNearLeft;
+		roomSensor4.tempLight = roomLightNearLeft;
 	}
 
     IEnumerator MovementCoroutine ()
@@ -203,6 +212,6 @@ public class ContainerController : MonoBehaviour {
         public float temperature;
         public Vector3 pos;
 		public TextMesh tempLabel;
-
+		public Light tempLight;
     }
 }
