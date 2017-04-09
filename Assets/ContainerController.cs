@@ -21,6 +21,9 @@ public class ContainerController : MonoBehaviour {
 	public Light roomLightNearLeft;
 	public Light roomLightNearRight;
 
+	public Color warmColor;
+	public Color coldColor;
+
     public float targetTemperature = 22;
 	public float maxTemperature = 40;
 	public float minTemperature = 0;
@@ -77,6 +80,7 @@ public class ContainerController : MonoBehaviour {
 		explosion.Stop ();
 		ice.Stop ();
 		SetupRoomSensorLabels();
+		SetupLightColors ();
         StartCoroutine(pollBrewSensor());
         StartCoroutine(pollRoomSensor(roomSensor1));
         StartCoroutine(pollRoomSensor(roomSensor2));
@@ -95,6 +99,21 @@ public class ContainerController : MonoBehaviour {
 		roomSensor3.tempLight = roomLightFarLeft;
 		roomSensor4.tempLabel = roomTempNearLeft;
 		roomSensor4.tempLight = roomLightNearLeft;
+	}
+
+	void SetupLightColors()
+	{
+		warmColor = new Color ();
+		warmColor.r= 1f;
+		warmColor.g= 0f;
+		warmColor.b= 0f;
+		warmColor.a= 1f;
+
+		coldColor = new Color ();
+		coldColor.r = 0f;
+		coldColor.g = 0f;
+		coldColor.b = 1f;
+		coldColor.a = 1f;
 	}
 
     IEnumerator MovementCoroutine ()
@@ -159,6 +178,12 @@ public class ContainerController : MonoBehaviour {
             {
                 sensor.temperature = temp;
 					sensor.tempLabel.text = (temp + tempSuffix);
+					if (temp > 15) {
+						sensor.tempLight.color = warmColor;
+					} else {
+						sensor.tempLight.color = coldColor;
+					}
+
             }));
             yield return new WaitForSeconds(3f);
         }
