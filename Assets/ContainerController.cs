@@ -63,16 +63,33 @@ public class ContainerController : MonoBehaviour {
         StartCoroutine(pollRoomSensor(roomSensor2));
         StartCoroutine(pollRoomSensor(roomSensor3));
         StartCoroutine(pollRoomSensor(roomSensor4));
+        StartCoroutine(MovementCoroutine());
     }
 
-    IEnumerator MovementCoroutine (Vector3 target)
+    IEnumerator MovementCoroutine ()
 	{
-		while(Vector3.Distance(transform.position, target) > 0.05f)
-		{
-			transform.position = Vector3.Lerp(transform.position, target, smoothing * Time.deltaTime);
+        while (target == null)
+        {
+            yield return new WaitForSeconds(1f);
+        }
+        var endTarget = pathFinder.AllocateEnd(target);
+        //print("ET: " + JsonUtility.ToJson(endTarget));
+        while (true)
+        {
+            while (Vector3.Distance(transform.position, endTarget) < 0.02f)
+            {
+                yield return new WaitForSeconds(2f);
+            }
+            var nextTarget = pathFinder.GetNextGrid(sensorId, transform.position, endTarget);
+            //print("ET: " + JsonUtility.ToJson(nextTarget));
+            while (Vector3.Distance(transform.position, nextTarget) > 0.02f)
+            {
+                transform.position = Vector3.Lerp(transform.position, nextTarget, smoothing * Time.deltaTime);
 
-			yield return null;
-		}
+                yield return null;
+            }
+        }
+
 
 		print("Keg reached the target.");
 
@@ -83,9 +100,10 @@ public class ContainerController : MonoBehaviour {
 
     void ResponseHandler(float temperature)
     {
-        var target = GetTarget(temperature);
+        target = GetTarget(temperature);
 		temperatureLabel.text = (temperature + "c");
-        StartCoroutine(MovementCoroutine(target));
+
+        //StartCoroutine(MovementCoroutine(target));
     }
 
     private IEnumerator pollBrewSensor()
