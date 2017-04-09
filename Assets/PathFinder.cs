@@ -92,7 +92,7 @@ public class PathFinder : MonoBehaviour {
         }
     }
 
-    internal Vector3 AllocateEnd(Vector3 target)
+    internal Vector3 AllocateEnd(string id, Vector3 target)
     {
         return grid.getTile(target).midPoint;
     }

@@ -14,6 +14,8 @@ public class ContainerController : MonoBehaviour {
 	public TextMesh roomTempNearLeft;
 	public TextMesh roomTempNearRight;
 
+    public float targetTemperature = 22;
+
 	// Gamla: "206847491"
 	// BrewR: "206860292"
 	// BrewL: "206889735"
@@ -84,10 +86,10 @@ public class ContainerController : MonoBehaviour {
         {
             yield return new WaitForSeconds(1f);
         }
-        var endTarget = pathFinder.AllocateEnd(target);
-        //print("ET: " + JsonUtility.ToJson(endTarget));
+                
         while (true)
         {
+            var endTarget = pathFinder.AllocateEnd(sensorId, target);
             while (Vector3.Distance(transform.position, endTarget) < 0.02f)
             {
                 yield return new WaitForSeconds(2f);
@@ -101,11 +103,6 @@ public class ContainerController : MonoBehaviour {
                 yield return null;
             }
         }
-
-
-		print("Keg reached the target.");
-
-		yield return new WaitForSeconds(3f);
 
 		print("MovementCoroutine is now finished.");
 	}
@@ -153,12 +150,12 @@ public class ContainerController : MonoBehaviour {
 
     private float CreateTargetRoomTemperature(float inputTemperature)
     {
-        if (inputTemperature > 22)
+        if (inputTemperature > targetTemperature)
         {
-            return inputTemperature - 4 < 22? 22 : inputTemperature - 4;
+            return inputTemperature - 2 < targetTemperature ? targetTemperature : inputTemperature - 2;
         } else
         {
-            return inputTemperature + 4 > 22? 22 : inputTemperature + 4;
+            return inputTemperature + 2 > targetTemperature ? targetTemperature : inputTemperature + 2;
         }
     }
 
