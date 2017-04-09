@@ -91,7 +91,7 @@ public class ContainerController : MonoBehaviour {
         StartCoroutine(pollRoomSensor(roomSensor3));
         StartCoroutine(pollRoomSensor(roomSensor4));
         StartCoroutine(MovementCoroutine());
-        StartCoroutine(pollTargetSensor());
+        StartCoroutine(pollTargetSensor());        
     }
 
     IEnumerator pollTargetSensor()
@@ -141,15 +141,15 @@ public class ContainerController : MonoBehaviour {
         }
                 
         while (true)
-        {            
+        {
             var endTarget = pathFinder.AllocateEnd(sensorId, target);
             print("NEW ET: " + JsonUtility.ToJson(endTarget));
             while (Vector3.Distance(transform.position, endTarget) < 0.02f)
             {
+                endTarget = pathFinder.AllocateEnd(sensorId, target);
                 yield return new WaitForSeconds(2f);
             }
             var nextTarget = pathFinder.GetNextGrid(sensorId, transform.position, endTarget);
-            //print("ET: " + JsonUtility.ToJson(nextTarget));
             while (Vector3.Distance(transform.position, nextTarget) > 0.02f)
             {
                 transform.position = Vector3.Lerp(transform.position, nextTarget, smoothing * Time.deltaTime);
