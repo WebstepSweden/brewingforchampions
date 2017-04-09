@@ -91,6 +91,7 @@ public class ContainerController : MonoBehaviour {
         StartCoroutine(pollRoomSensor(roomSensor3));
         StartCoroutine(pollRoomSensor(roomSensor4));
         StartCoroutine(MovementCoroutine());
+        StartCoroutine(pollTargetSensor());
     }
 
     IEnumerator pollTargetSensor()
@@ -135,13 +136,14 @@ public class ContainerController : MonoBehaviour {
     IEnumerator MovementCoroutine ()
 	{
         while (target == null)
-        {
+        {            
             yield return new WaitForSeconds(1f);
         }
                 
         while (true)
-        {
+        {            
             var endTarget = pathFinder.AllocateEnd(sensorId, target);
+            print("NEW ET: " + JsonUtility.ToJson(endTarget));
             while (Vector3.Distance(transform.position, endTarget) < 0.02f)
             {
                 yield return new WaitForSeconds(2f);
@@ -152,8 +154,9 @@ public class ContainerController : MonoBehaviour {
             {
                 transform.position = Vector3.Lerp(transform.position, nextTarget, smoothing * Time.deltaTime);
 
-                yield return null;
+                yield return null;                
             }
+            
         }
 
 		print("MovementCoroutine is now finished.");
@@ -217,13 +220,13 @@ public class ContainerController : MonoBehaviour {
 
     private float CreateTargetRoomTemperature(float inputTemperature)
     {
-        print("TARGET: " + targetTemperature);
+
         if (inputTemperature > targetTemperature)
         {
-            return inputTemperature - 2 < targetTemperature ? targetTemperature : inputTemperature - 2;
+            return targetTemperature - 2 < targetTemperature ? targetTemperature : targetTemperature - 2;
         } else
         {
-            return inputTemperature + 2 > targetTemperature ? targetTemperature : inputTemperature + 2;
+            return targetTemperature + 2 > targetTemperature ? targetTemperature : targetTemperature + 2;
         }
     }
 
