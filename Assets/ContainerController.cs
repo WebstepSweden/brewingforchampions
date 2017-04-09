@@ -6,6 +6,7 @@ public class ContainerController : MonoBehaviour {
 
 	private DisruptiveApi.ApiClient api = new DisruptiveApi.ApiClient();
 
+	public ParticleSystem explosion;
 	public TextMesh temperatureLabel;
     public PathFinder pathFinder;
 
@@ -63,6 +64,7 @@ public class ContainerController : MonoBehaviour {
 
     void Start()
     {
+		explosion.Stop ();
 		SetupRoomSensorLabels();
         StartCoroutine(pollBrewSensor());
         StartCoroutine(pollRoomSensor(roomSensor1));
@@ -111,7 +113,11 @@ public class ContainerController : MonoBehaviour {
     {
         target = GetTarget(temperature);
 		temperatureLabel.text = (temperature + "c");
-
+		if (temperature > 39f) {
+			explosion.Play();
+		} else if (explosion.isEmitting) {
+			explosion.Stop ();
+		}
         //StartCoroutine(MovementCoroutine(target));
     }
 
