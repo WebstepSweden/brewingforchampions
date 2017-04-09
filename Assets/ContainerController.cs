@@ -9,11 +9,14 @@ public class ContainerController : MonoBehaviour {
 	public TextMesh temperatureLabel;
     public PathFinder pathFinder;
 
-	// Gamla: "206847491"
+	public TextMesh roomTempFarLeft;
+	public TextMesh roomTempFarRight;
+	public TextMesh roomTempNearLeft;
+	public TextMesh roomTempNearRight;
 
+	// Gamla: "206847491"
 	// BrewR: "206860292"
 	// BrewL: "206889735"
-
 	public string sensorId = "206847491";
 
 	public float smoothing = 1f;
@@ -58,6 +61,7 @@ public class ContainerController : MonoBehaviour {
 
     void Start()
     {
+		SetupRoomSensorLabels();
         StartCoroutine(pollBrewSensor());
         StartCoroutine(pollRoomSensor(roomSensor1));
         StartCoroutine(pollRoomSensor(roomSensor2));
@@ -65,6 +69,14 @@ public class ContainerController : MonoBehaviour {
         StartCoroutine(pollRoomSensor(roomSensor4));
         StartCoroutine(MovementCoroutine());
     }
+		
+	void SetupRoomSensorLabels()
+	{
+		roomSensor1.tempLabel = roomTempNearRight;
+		roomSensor2.tempLabel = roomTempFarRight;
+		roomSensor3.tempLabel = roomTempFarLeft;
+		roomSensor4.tempLabel = roomTempNearLeft;
+	}
 
     IEnumerator MovementCoroutine ()
 	{
@@ -123,6 +135,7 @@ public class ContainerController : MonoBehaviour {
             StartCoroutine(api.GetSensors(sensor.id, (temp) =>
             {
                 sensor.temperature = temp;
+					sensor.tempLabel.text = (temp + "c");
             }));
             yield return new WaitForSeconds(3f);
         }
@@ -175,5 +188,7 @@ public class ContainerController : MonoBehaviour {
         public string id;
         public float temperature;
         public Vector3 pos;
+		public TextMesh tempLabel;
+
     }
 }
