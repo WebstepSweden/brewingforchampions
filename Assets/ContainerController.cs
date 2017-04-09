@@ -6,6 +6,7 @@ public class ContainerController : MonoBehaviour {
 
 	private DisruptiveApi.ApiClient api = new DisruptiveApi.ApiClient();
 
+	public ParticleSystem ice;
 	public ParticleSystem explosion;
 	public TextMesh temperatureLabel;
     public PathFinder pathFinder;
@@ -16,6 +17,10 @@ public class ContainerController : MonoBehaviour {
 	public TextMesh roomTempNearRight;
 
     public float targetTemperature = 22;
+	public float maxTemperature = 40;
+	public float minTemperature = 0;
+
+	public string tempSuffix = "°c";
 
 	// Gamla: "206847491"
 	// BrewR: "206860292"
@@ -112,11 +117,16 @@ public class ContainerController : MonoBehaviour {
     void ResponseHandler(float temperature)
     {
         target = GetTarget(temperature);
-		temperatureLabel.text = (temperature + "c");
-		if (temperature > 39f) {
+		temperatureLabel.text = (temperature + tempSuffix);
+		if (temperature > maxTemperature) {
 			explosion.Play();
 		} else if (explosion.isEmitting) {
 			explosion.Stop ();
+		}
+		if (temperature < minTemperature) {
+			ice.Play();
+		} else if (ice.isEmitting) {
+			ice.Stop ();
 		}
         //StartCoroutine(MovementCoroutine(target));
     }
@@ -138,7 +148,7 @@ public class ContainerController : MonoBehaviour {
             StartCoroutine(api.GetSensors(sensor.id, (temp) =>
             {
                 sensor.temperature = temp;
-					sensor.tempLabel.text = (temp + "c");
+					sensor.tempLabel.text = (temp + tempSuffix);
             }));
             yield return new WaitForSeconds(3f);
         }
