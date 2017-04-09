@@ -70,6 +70,7 @@ public class ContainerController : MonoBehaviour {
     void Start()
     {
 		explosion.Stop ();
+		ice.Stop ();
 		SetupRoomSensorLabels();
         StartCoroutine(pollBrewSensor());
         StartCoroutine(pollRoomSensor(roomSensor1));
