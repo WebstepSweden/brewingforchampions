@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class ContainerController : MonoBehaviour {
@@ -14,12 +15,15 @@ public class ContainerController : MonoBehaviour {
 	public TextMesh roomTempNearLeft;
 	public TextMesh roomTempNearRight;
 
-    public float targetTemperature = 22;
+    private string targetSensor1 = "b3l1r8i15hbg00eb1pf0";
+    private string targetSensor2 = "b3l1rca1frig00d8q7tg";
+    public string targetSensorId;
+    private float targetTemperature = 22;
 
-	// Gamla: "206847491"
-	// BrewR: "206860292"
-	// BrewL: "206889735"
-	public string sensorId = "206847491";
+    // Gamla: "206847491"
+    // BrewR: "206860292"
+    // BrewL: "206889735"
+    public string sensorId = "206847491";
 
 	public float smoothing = 1f;
 	public Vector3 target;
@@ -63,6 +67,7 @@ public class ContainerController : MonoBehaviour {
 
     void Start()
     {
+       
 		SetupRoomSensorLabels();
         StartCoroutine(pollBrewSensor());
         StartCoroutine(pollRoomSensor(roomSensor1));
@@ -71,7 +76,19 @@ public class ContainerController : MonoBehaviour {
         StartCoroutine(pollRoomSensor(roomSensor4));
         StartCoroutine(MovementCoroutine());
     }
-		
+
+    IEnumerator pollTargetSensor()
+    {
+        while (true)
+        {
+            StartCoroutine(api.GetSensors(targetSensorId, (temp) =>
+            {
+                targetTemperature = temp;
+            }));
+            yield return new WaitForSeconds(3f);
+        }
+    }
+
 	void SetupRoomSensorLabels()
 	{
 		roomSensor1.tempLabel = roomTempNearRight;
@@ -110,6 +127,7 @@ public class ContainerController : MonoBehaviour {
     void ResponseHandler(float temperature)
     {
         target = GetTarget(temperature);
+        print(JsonUtility.ToJson(target));
 		temperatureLabel.text = (temperature + "c");
 
         //StartCoroutine(MovementCoroutine(target));
@@ -150,6 +168,7 @@ public class ContainerController : MonoBehaviour {
 
     private float CreateTargetRoomTemperature(float inputTemperature)
     {
+        print("TARGET: " + targetTemperature);
         if (inputTemperature > targetTemperature)
         {
             return inputTemperature - 2 < targetTemperature ? targetTemperature : inputTemperature - 2;

@@ -7,13 +7,21 @@ public class PathFinder : MonoBehaviour {
 
     private Grid grid = new Grid();
 
+    Dictionary<string, List<Tile>> occupiedTiles = new Dictionary<string, List<Tile>>();
+    Dictionary<string, Tile> targetTiles = new Dictionary<string, Tile>();
+
     public Vector3 GetNextGrid(string barrelId, Vector3 position, Vector3 target)
     {
         //print("position: " + JsonUtility.ToJson(position));
         var currentTile = grid.getTile(position);
-        print("Current: " + JsonUtility.ToJson(currentTile.midPoint));
+        //print("Current: " + JsonUtility.ToJson(currentTile.midPoint));
         var targetTile = grid.getTile(target);
-        print("Target: " + JsonUtility.ToJson(targetTile.midPoint));
+        //print("Target: " + JsonUtility.ToJson(targetTile.midPoint));
+
+        if (!occupiedTiles.ContainsKey(barrelId))
+        {
+            occupiedTiles[barrelId] = new List<Tile>();
+        }
 
         if (targetTile.xIndex == currentTile.xIndex)
         {
@@ -22,14 +30,43 @@ public class PathFinder : MonoBehaviour {
             var nextZ = zDirectionIsPositive ? currentTile.zIndex + 1 : currentTile.zIndex - 1;
 
             var firstCandidate = grid.getTile(currentTile.xIndex, nextZ);
+            /*
+            if (firstCandidate.occupiedBy != null && firstCandidate.occupiedBy != barrelId) return currentTile.midPoint;
+            firstCandidate.occupiedBy = barrelId;
+            var occupied = occupiedTiles[barrelId];
+            
+            foreach(Tile tile in occupied) {
+                if (!tile.midPoint.Equals(currentTile.midPoint) && !tile.midPoint.Equals(firstCandidate.midPoint))
+                {
+                    tile.occupiedBy = null;
+                }
+            }
+
+            occupied.RemoveAll(tile => !tile.midPoint.Equals(currentTile.midPoint) && !tile.midPoint.Equals(firstCandidate.midPoint));
+            */
             return firstCandidate.midPoint;
         } else
         {
             bool xDirectionIsPositive = currentTile.xIndex < targetTile.xIndex;
 
             var nextX = xDirectionIsPositive ? currentTile.xIndex + 1 : currentTile.xIndex - 1;
-
+            
             var firstCandidate = grid.getTile(nextX, currentTile.zIndex);
+            /*
+            if (firstCandidate.occupiedBy != null && firstCandidate.occupiedBy != barrelId) return currentTile.midPoint;
+            firstCandidate.occupiedBy = barrelId;
+            var occupied = occupiedTiles[barrelId];
+
+            foreach (Tile tile in occupied)
+            {
+                if (!tile.midPoint.Equals(currentTile.midPoint) && !tile.midPoint.Equals(firstCandidate.midPoint))
+                {
+                    tile.occupiedBy = null;
+                }
+            }
+
+            occupied.RemoveAll(tile => !tile.midPoint.Equals(currentTile.midPoint) && !tile.midPoint.Equals(firstCandidate.midPoint));
+            */
             return firstCandidate.midPoint;
         }
 
@@ -79,8 +116,22 @@ public class PathFinder : MonoBehaviour {
 
         public Tile getTile(int x, int z)
         {
-            print("TILE. X: " + x + " Z: " + z);
-            return tiles[x][z];
+            x = x < 0 ? 0 : x;
+            z = z < 0 ? 0 : z;
+
+            x = x > 9 ? 9 : x;
+            z = z > 18 ? 18 : z;
+            try
+            {
+                return tiles[x][z];
+            }
+            catch (Exception e)
+            {
+                print("FAILINPUT: X: " + x + " Z:" + z);
+                print(JsonUtility.ToJson(tiles));
+                throw e;
+            }
+            
         }
 
         public Tile getTile(Vector3 pos)
@@ -88,13 +139,57 @@ public class PathFinder : MonoBehaviour {
             int xIndex = (int)System.Math.Round(pos.x - minX, 0);
             int zIndex = (int)System.Math.Round(pos.z - minZ, 0);
 
-            return tiles[xIndex][zIndex];
+            xIndex = xIndex < 0 ? 0 : xIndex;
+            zIndex = zIndex < 0 ? 0 : zIndex;
+
+            xIndex = xIndex > 9 ? 9 : xIndex;
+            zIndex = zIndex > 18 ? 18 : zIndex;
+
+            try
+            {
+                return tiles[xIndex][zIndex];
+            }
+            catch (Exception e)
+            {
+                print("FAILINPUT: X: " + xIndex + " Z:" + zIndex);
+                print(JsonUtility.ToJson(tiles));
+                throw e;
+            }
         }
     }
 
     internal Vector3 AllocateEnd(string id, Vector3 target)
     {
-        return grid.getTile(target).midPoint;
+        var tile = grid.getTile(target);
+        if (id == tile.reservedAsTargetBy) return tile.midPoint;
+
+        if (targetTiles.ContainsKey(id))
+        {
+            targetTiles[id].occupiedBy = null;
+            targetTiles.Remove(id);
+        }
+        
+
+        if (tile.reservedAsTargetBy != null && tile.reservedAsTargetBy != id)
+        {
+            var newTile = grid.getTile(tile.xIndex, tile.zIndex + 1);
+            if (newTile.reservedAsTargetBy != null && tile.reservedAsTargetBy != id)
+            {
+                newTile = grid.getTile(tile.xIndex, tile.zIndex - 1);
+            }
+            if (newTile.reservedAsTargetBy != null && tile.reservedAsTargetBy != id)
+            {
+                newTile = grid.getTile(tile.xIndex + 1, tile.zIndex);
+            }
+            if (newTile.reservedAsTargetBy != null && tile.reservedAsTargetBy != id)
+            {
+                newTile = grid.getTile(tile.xIndex - 1, tile.zIndex);
+            }
+
+            tile = newTile;
+        }
+        tile.reservedAsTargetBy = id;
+        return tile.midPoint;
     }
 
     public class Tile
