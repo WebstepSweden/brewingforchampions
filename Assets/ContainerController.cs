@@ -7,6 +7,8 @@ public class ContainerController : MonoBehaviour {
 
 	private DisruptiveApi.ApiClient api = new DisruptiveApi.ApiClient();
 
+	public ParticleSystem ice;
+	public ParticleSystem explosion;
 	public TextMesh temperatureLabel;
     public PathFinder pathFinder;
 
@@ -18,12 +20,21 @@ public class ContainerController : MonoBehaviour {
     private string targetSensor1 = "b3l1r8i15hbg00eb1pf0";
     private string targetSensor2 = "b3l1rca1frig00d8q7tg";
     public string targetSensorId;
-    private float targetTemperature = 22;
+	public Light roomLightFarLeft;
+	public Light roomLightFarRight;
+	public Light roomLightNearLeft;
+	public Light roomLightNearRight;
 
-    // Gamla: "206847491"
-    // BrewR: "206860292"
-    // BrewL: "206889735"
-    public string sensorId = "206847491";
+    public float targetTemperature = 22;
+	public float maxTemperature = 40;
+	public float minTemperature = 0;
+
+	public string tempSuffix = "°c";
+
+	// Gamla: "206847491"
+	// BrewR: "206860292"
+	// BrewL: "206889735"
+	public string sensorId = "206847491";
 
 	public float smoothing = 1f;
 	public Vector3 target;
@@ -67,7 +78,8 @@ public class ContainerController : MonoBehaviour {
 
     void Start()
     {
-       
+		explosion.Stop ();
+		ice.Stop ();
 		SetupRoomSensorLabels();
         StartCoroutine(pollBrewSensor());
         StartCoroutine(pollRoomSensor(roomSensor1));
@@ -92,9 +104,13 @@ public class ContainerController : MonoBehaviour {
 	void SetupRoomSensorLabels()
 	{
 		roomSensor1.tempLabel = roomTempNearRight;
+		roomSensor1.tempLight = roomLightNearRight;
 		roomSensor2.tempLabel = roomTempFarRight;
+		roomSensor2.tempLight = roomLightFarRight;
 		roomSensor3.tempLabel = roomTempFarLeft;
+		roomSensor3.tempLight = roomLightFarLeft;
 		roomSensor4.tempLabel = roomTempNearLeft;
+		roomSensor4.tempLight = roomLightNearLeft;
 	}
 
     IEnumerator MovementCoroutine ()
@@ -127,9 +143,17 @@ public class ContainerController : MonoBehaviour {
     void ResponseHandler(float temperature)
     {
         target = GetTarget(temperature);
-        print(JsonUtility.ToJson(target));
-		temperatureLabel.text = (temperature + "c");
-
+		temperatureLabel.text = (temperature + tempSuffix);
+		if (temperature > maxTemperature) {
+			explosion.Play();
+		} else if (explosion.isEmitting) {
+			explosion.Stop ();
+		}
+		if (temperature < minTemperature) {
+			ice.Play();
+		} else if (ice.isEmitting) {
+			ice.Stop ();
+		}
         //StartCoroutine(MovementCoroutine(target));
     }
 
@@ -150,7 +174,7 @@ public class ContainerController : MonoBehaviour {
             StartCoroutine(api.GetSensors(sensor.id, (temp) =>
             {
                 sensor.temperature = temp;
-					sensor.tempLabel.text = (temp + "c");
+					sensor.tempLabel.text = (temp + tempSuffix);
             }));
             yield return new WaitForSeconds(3f);
         }
@@ -205,6 +229,6 @@ public class ContainerController : MonoBehaviour {
         public float temperature;
         public Vector3 pos;
 		public TextMesh tempLabel;
-
+		public Light tempLight;
     }
 }
