@@ -221,12 +221,14 @@ public class ContainerController : MonoBehaviour {
     private float CreateTargetRoomTemperature(float inputTemperature)
     {
 
+        var diff = targetTemperature - inputTemperature;
+
         if (inputTemperature > targetTemperature)
         {
-            return targetTemperature - 2 < targetTemperature ? targetTemperature : targetTemperature - 2;
+            return targetTemperature - diff / 2 < targetTemperature ? targetTemperature : targetTemperature - 2;
         } else
         {
-            return targetTemperature + 2 > targetTemperature ? targetTemperature : targetTemperature + 2;
+            return targetTemperature + diff / 2 > targetTemperature ? targetTemperature : targetTemperature + 2;
         }
     }
 
