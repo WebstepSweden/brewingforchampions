@@ -27,10 +27,12 @@ public class MainMenuController : MonoBehaviour {
 	public Text c2Max;
 
 	public Button startButton;
+	public Button exitButton;
 
 	void Start () {
 		StartCoroutine(api.GetSensors(GetSensors));
 		startButton.onClick.AddListener (StartButton);
+		exitButton.onClick.AddListener (()=>{Application.Quit();});
 	}
 
 	private void GetSensors(List<Sensor> sensors)
