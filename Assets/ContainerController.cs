@@ -294,6 +294,9 @@ public class ContainerController : MonoBehaviour {
         public static string NearLeftRoomSensorName = "NearLeft";
         public static string NearRightRoomSensorName = "NearRight";
 
+        public static string Container1 = "Container BrewL";
+        public static string Container2 = "Container BrewR";
+
         public string sensorId;
         public float targetTemp;
         public float currentTemp;
