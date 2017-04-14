@@ -4,6 +4,7 @@ using UnityEngine;
 using Assets;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour {
 
@@ -17,10 +18,19 @@ public class MainMenuController : MonoBehaviour {
 	public Dropdown containerOne;
 	public Dropdown containerTwo;
 
+	public Text c1Target;
+	public Text c1Min;
+	public Text c1Max;
+
+	public Text c2Target;
+	public Text c2Min;
+	public Text c2Max;
+
 	public Button startButton;
 
 	void Start () {
 		StartCoroutine(api.GetSensors(GetSensors));
+		startButton.onClick.AddListener (StartButton);
 	}
 
 	private void GetSensors(List<Sensor> sensors)
@@ -45,12 +55,50 @@ public class MainMenuController : MonoBehaviour {
 	}
 
 	private void StartButton() {
-		
+		print ("hej");
+		print(roomFarLeft.options [roomFarLeft.value].text);
+
+		var farLeft = ParseText(roomFarLeft.options [roomFarLeft.value].text);
+		ContainerController.configs [ContainerController.Config.FarLeftRoomSensorName] = farLeft;
+
+		var farRight = ParseText(roomFarRight.options [roomFarRight.value].text);
+		ContainerController.configs [ContainerController.Config.FarRightRoomSensorName] = farRight;
+
+		var nearLeft = ParseText(roomNearLeft.options [roomNearLeft.value].text);
+		ContainerController.configs [ContainerController.Config.NearLeftRoomSensorName] = nearLeft;
+
+		var nearRight = ParseText(roomNearRight.options [roomNearRight.value].text);
+		ContainerController.configs [ContainerController.Config.NearRightRoomSensorName] = nearRight;
+
+
+		var containerOne1 = ParseText(containerOne.options [containerOne.value].text);
+		ContainerController.configs [ContainerController.Config.Container1] = containerOne1;
+		containerOne1.targetTemp = float.Parse(c1Target.text);
+		containerOne1.minTemp = float.Parse(c1Min.text);
+		containerOne1.maxTemp = float.Parse(c1Max.text);
+
+		var containerTwo2 = ParseText(containerTwo.options [containerTwo.value].text);
+		ContainerController.configs [ContainerController.Config.Container2] = containerTwo2;
+		containerTwo2.targetTemp = float.Parse(c2Target.text);
+		containerTwo2.minTemp = float.Parse(c2Min.text);
+		containerTwo2.maxTemp = float.Parse(c2Max.text);
+		SceneManager.LoadScene ("MainScene");
 	}
-	// Start Button:
-	// Read selected room sensor id's from dropdowns (x4)
-	// Read selected container sensor id's from dropdowns (x2)
-	// Read target temperature from textboxes (x2)
-	// Save Sensor id's to static map
-	// Save target temperatures to map
+
+	private ContainerController.Config ParseText(string text)
+	{
+		int endOfId = text.IndexOf (" (");
+		int endOfTemp = text.IndexOf("°c");
+
+		string id = text.Substring (0, endOfId);
+		string temp = text.Substring (endOfId+2, endOfTemp-endOfId-2);
+
+		print (id);
+		print (temp);
+
+		return new ContainerController.Config(){
+			sensorId=id,
+			currentTemp=float.Parse(temp)
+		};
+	}
 }
