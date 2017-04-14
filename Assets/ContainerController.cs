@@ -90,7 +90,7 @@ public class ContainerController : MonoBehaviour {
         var config = configs[name];
         targetTemperature = config.targetTemp;
         minTemperature = config.minTemp;
-        maxTemperature = config.minTemp;
+        maxTemperature = config.maxTemp;
         targetSensorId = config.sensorId;
 
         roomSensor1.SetConfig(configs[Config.FarLeftRoomSensorName]);
