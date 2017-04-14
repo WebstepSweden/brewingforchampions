@@ -22,5 +22,6 @@ public class CubeController : MonoBehaviour
     {
         GetComponent<Dropdown>().options.Add(new Dropdown.OptionData() { text = "HEJ" });
         print(response.Count);
+        ContainerController.configs[""] = new ContainerController.Config();
     }
 }

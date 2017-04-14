@@ -7,6 +7,8 @@ public class ContainerController : MonoBehaviour {
 
 	private DisruptiveApi.ApiClient api = new DisruptiveApi.ApiClient();
 
+    public static Dictionary<string, Config> configs = new Dictionary<string, Config>();
+
 	public ParticleSystem ice;
 	public ParticleSystem explosion;
 	public TextMesh temperatureLabel;
@@ -47,6 +49,7 @@ public class ContainerController : MonoBehaviour {
 
     private RoomSensor roomSensor1 = new RoomSensor()
     {
+        name = "FarLeft",    
         id = "b3ke6ba1frig00d8q7t0",
         temperature = 30f,
         pos = new Vector3(-4.5f, 1, -9.5f)
@@ -54,6 +57,7 @@ public class ContainerController : MonoBehaviour {
 
     private RoomSensor roomSensor2 = new RoomSensor()
     {
+        name = "NearLeft",
         id = "b3ke66q1frig00d8q7sg",
         temperature = 5f,
         pos = new Vector3(4.5f, 1, -9.5f)
@@ -61,6 +65,7 @@ public class ContainerController : MonoBehaviour {
 
     private RoomSensor roomSensor3 = new RoomSensor()
     {
+        name = "FarRight",
         id = "b3ke50l3dl0000eaekh0",
         temperature = 18f,
         pos = new Vector3(4.5f, 1, 9.5f)
@@ -68,6 +73,7 @@ public class ContainerController : MonoBehaviour {
 
     private RoomSensor roomSensor4 = new RoomSensor()
     {
+        name = "NearRight",
         id = "b3ke4dd3dl0000eaekgg",
         temperature = 27f,
         pos = new Vector3(-4.5f, 1, 9.5f)
@@ -81,7 +87,19 @@ public class ContainerController : MonoBehaviour {
 
     void Start()
     {
-		explosion.Stop ();
+
+        var config = configs[name];
+        targetTemperature = config.targetTemp;
+        minTemperature = config.minTemp;
+        maxTemperature = config.minTemp;
+        targetSensorId = config.sensorId;
+
+        roomSensor1.SetConfig(configs[roomSensor1.name]);
+        roomSensor2.SetConfig(configs[roomSensor2.name]);
+        roomSensor3.SetConfig(configs[roomSensor3.name]);
+        roomSensor4.SetConfig(configs[roomSensor4.name]);
+
+        explosion.Stop ();
 		ice.Stop ();
 		SetupRoomSensorLabels();
 		SetupLightColors ();
@@ -255,10 +273,26 @@ public class ContainerController : MonoBehaviour {
 
     public class RoomSensor
     {
+        public string name;
         public string id;
         public float temperature;
         public Vector3 pos;
 		public TextMesh tempLabel;
 		public Light tempLight;
+
+        public void SetConfig(Config config)
+        {
+            id = config.sensorId;
+            temperature = config.currentTemp;
+        }
+    }
+
+    public class Config
+    {
+        public string sensorId;
+        public float targetTemp;
+        public float currentTemp;
+        public float maxTemp;
+        public float minTemp;
     }
 }
