@@ -94,10 +94,10 @@ public class ContainerController : MonoBehaviour {
         maxTemperature = config.minTemp;
         targetSensorId = config.sensorId;
 
-        roomSensor1.SetConfig(configs[roomSensor1.name]);
-        roomSensor2.SetConfig(configs[roomSensor2.name]);
-        roomSensor3.SetConfig(configs[roomSensor3.name]);
-        roomSensor4.SetConfig(configs[roomSensor4.name]);
+        roomSensor1.SetConfig(configs[Config.FarLeftRoomSensorName]);
+        roomSensor2.SetConfig(configs[Config.NearLeftRoomSensorName]);
+        roomSensor3.SetConfig(configs[Config.FarRightRoomSensorName]);
+        roomSensor4.SetConfig(configs[Config.NearRightRoomSensorName]);
 
         explosion.Stop ();
 		ice.Stop ();
@@ -289,6 +289,11 @@ public class ContainerController : MonoBehaviour {
 
     public class Config
     {
+        public static string FarLeftRoomSensorName = "FarLeft";
+        public static string FarRightRoomSensorName = "FarRight";
+        public static string NearLeftRoomSensorName = "NearLeft";
+        public static string NearRightRoomSensorName = "NearRight";
+
         public string sensorId;
         public float targetTemp;
         public float currentTemp;
