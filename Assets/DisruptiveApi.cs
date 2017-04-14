@@ -44,7 +44,7 @@ public class DisruptiveApi : MonoBehaviour {
                 if (webClient.responseCode != 200) print("ERROR");
                 var jsonText = webClient.downloadHandler.text;
                 var sensorResponse = JsonUtility.FromJson<SensorsResponse>(jsonText);
-                print(JsonUtility.ToJson(sensorResponse));
+                
                 List<Sensor> sensors = new List<Sensor>();
                 foreach(Sensor sensor in sensorResponse.things)
                 {
