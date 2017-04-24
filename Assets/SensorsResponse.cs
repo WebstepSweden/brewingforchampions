@@ -20,7 +20,13 @@ namespace Assets
         public float temperature { get { return state.properties.temperature; } }
         public bool hasTemperature
         {
-            get { return state.properties.temperature != 0; }
+			get { 
+				if (state == null)
+					return false;
+				if (state.properties == null)
+					return false;
+				return state.properties.temperature != 0;
+			}
         }
 
         [Serializable]
